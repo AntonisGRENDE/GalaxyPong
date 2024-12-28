@@ -14,7 +14,7 @@ using namespace std;
 
 void draw() {
 	graphics::Brush br;
-	br.texture = assets_path + "galaxy3.png"; // analogia 2 pros tria peripou
+	br.texture = assets_path + "galaxy3.png"; // ~ 2/3 ratio 
 	br.outline_opacity = 0.0f;
 
 	graphics::drawRect(CANVAS_HEIGHT / 2, CANVAS_WIDTH / 2, CANVAS_WIDTH + 150, CANVAS_WIDTH, br);
@@ -32,23 +32,23 @@ void update(float ms) {
 
 	// validate user input
 	if (graphics::getKeyState(graphics::SCANCODE_W)) {
-		if ((player1.center_y - player1.height / 2) > 0.0f) {
+		if ((player1.get_center_y() - player1.height / 2) > 0.0f) {
 			player1.moveup();
 		}
 	}
 	if (graphics::getKeyState(graphics::SCANCODE_S)) {
-		if ((player1.center_y + player1.height / 2) < game->canvas_height) {
+		if ((player1.get_center_y() + player1.height / 2) < game->canvas_height) {
 			player1.movedown();
 		}
 	}
 	if (graphics::getKeyState(graphics::SCANCODE_UP)) {
-		if ((player2.center_y - player2.height / 2) > 0.0f) {
+		if ((player2.get_center_y() - player2.height / 2) > 0.0f) {
 			player2.moveup();
 		}
 	}
 	//an to kentro tis mparas kai to miso toy mikoys exoun kseperasei
 	if (graphics::getKeyState(graphics::SCANCODE_DOWN)) {
-		if ((player2.center_y + player2.height / 2) < game->canvas_height) {
+		if ((player2.get_center_y() + player2.height / 2) < game->canvas_height) {
 			player2.movedown();
 		}
 	}
@@ -110,7 +110,7 @@ int main() {
 	Bar player2(CANVAS_WIDTH - 1, CANVAS_HEIGHT / 2, 2.0f, 20.0f, 0.9f);
 	Game game(WINDOW_WIDTH, WINDOW_HEIGHT, CANVAS_WIDTH, CANVAS_HEIGHT, ball, player1, player2); //den einai etoimi klasi
 
-	graphics::createWindow(game.window_width, game.window_height, "Ergasia SGG");
+	graphics::createWindow(game.window_width, game.window_height, "SGG Assingment");
 	std::string mp3 = assets_path + "music.mp3";
 	graphics::playSound(mp3, 1.0f); // play music
 

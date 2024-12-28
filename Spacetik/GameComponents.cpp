@@ -7,11 +7,13 @@
 using namespace std;
 
 class GameComponent {
-public:
+
+protected:
 	float center_x;
 	float center_y;
 	float speed;
 
+public:
 	GameComponent(float x, float y, float s) {
 		center_x = x;
 		center_y = y;
@@ -42,13 +44,11 @@ public:
 
 
 class Ball: public GameComponent {
-private:
 
+private:
 	float ball_direction_x;
 	float ball_direction_y;
 	float ball_radius;
-	float speed;
-
 
 	float init_ball_center_x;
 	float init_ball_center_y;
@@ -57,7 +57,7 @@ private:
 
 public:
 	Ball(float x, float y, float dx, float dy, float br, float bs):
-		GameComponent(x,y,bs){ //default constructor
+		GameComponent(x, y, bs){ //default constructor
 		init_ball_center_x = x;
 		init_ball_center_y = y;
 		init_ball_direction_x = dx;
@@ -67,7 +67,7 @@ public:
 		startAgain();
 	}
 
-	void startAgain() { //gets called in the start or every time the ball touches the sides
+	void startAgain() {						//gets called in the start or every time the ball touches the sides
 		center_x = init_ball_center_x;
 		center_y = init_ball_center_y;
 
@@ -122,8 +122,8 @@ public:
 	float height;
 	int points;
 
-	Bar(float x, float y, float w, float h, float sp):
-		GameComponent(x,y,sp){
+	Bar(float x, float y, float w, float h, float sp)
+		: GameComponent(x,y,sp){
 		width = w;
 		height = h;
 		points = 0;
@@ -181,23 +181,24 @@ public:
 	}
 
 	static void drawBall() {
-
-		Game* game = reinterpret_cast <Game*>(graphics::getUserData()); // get all game data
+		Game* game = reinterpret_cast <Game*>(graphics::getUserData());			// get all game data
 		graphics::Brush br;
 		br.fill_opacity = 0.95f;
 		br.outline_opacity = 0.0f;
 		br.texture = assets_path + "sun3.png";
 		graphics::drawDisk(game->ball.get_center_x(), game->ball.get_center_y(), game->ball.get_ball_radius(), br);
 	}
+
 	static void drawPlayers() {
 		Game* game = reinterpret_cast <Game*>(graphics::getUserData());
 		graphics::Brush br;
 		br.fill_opacity = 0.95f;
 		br.outline_opacity = 0.2f;
 		br.texture = assets_path + "bar3.png";
-		graphics::drawRect(game->player1.center_x, game->player1.center_y, game->player1.width, game->player1.height, br);
-		graphics::drawRect(game->player2.center_x, game->player2.center_y, game->player2.width, game->player2.height, br);
+		graphics::drawRect(game->player1.get_center_x(), game->player1.get_center_y(), game->player1.width, game->player1.height, br);
+		graphics::drawRect(game->player2.get_center_x(), game->player2.get_center_y(), game->player2.width, game->player2.height, br);
 	}
+
 	static void drawText() {
 		Game* game = reinterpret_cast <Game*>(graphics::getUserData());
 		graphics::Brush br;
