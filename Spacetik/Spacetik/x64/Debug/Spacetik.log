@@ -1,0 +1,6 @@
+﻿  Spacetik.cpp
+D:\Projects\c++ projects\ergasia_aueb\Spacetik\Spacetik.cpp(145,10): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+D:\Projects\c++ projects\ergasia_aueb\Spacetik\Spacetik.cpp(203,41): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\Projects\c++ projects\ergasia_aueb\Spacetik\Spacetik.cpp(318,49): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\Projects\c++ projects\ergasia_aueb\Spacetik\Spacetik.cpp(318,30): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Spacetik.vcxproj -> D:\Projects\c++ projects\ergasia_aueb\Spacetik\bin\Spacetik.exe
