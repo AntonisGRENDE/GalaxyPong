@@ -117,11 +117,13 @@ public:
 
 
 class Bar : public GameComponent{
-public:
+
+protected:
 	float width;
 	float height;
 	int points;
 
+public:
 	Bar(float x, float y, float w, float h, float sp)
 		: GameComponent(x,y,sp){
 		width = w;
@@ -146,7 +148,11 @@ public:
 		return false;
 	}
 
-	float get_points() {
+	void increment_points() {
+		 ++points;
+	}
+
+	int get_points() {
 		return points;
 	}
 	float get_width() {
@@ -195,8 +201,8 @@ public:
 		br.fill_opacity = 0.95f;
 		br.outline_opacity = 0.2f;
 		br.texture = assets_path + "bar3.png";
-		graphics::drawRect(game->player1.get_center_x(), game->player1.get_center_y(), game->player1.width, game->player1.height, br);
-		graphics::drawRect(game->player2.get_center_x(), game->player2.get_center_y(), game->player2.width, game->player2.height, br);
+		graphics::drawRect(game->player1.get_center_x(), game->player1.get_center_y(), game->player1.get_width(), game->player1.get_height(), br);
+		graphics::drawRect(game->player2.get_center_x(), game->player2.get_center_y(), game->player2.get_width(), game->player2.get_height(), br);
 	}
 
 	static void drawText() {
@@ -205,8 +211,8 @@ public:
 		br.fill_secondary_color[0] = 1.0f;
 		br.fill_secondary_color[1] = 1.0f;
 		br.fill_secondary_color[2] = 1.0f;
-		graphics::drawText(2, 5, 5, "P1:" + to_string(game->player1.points), br);
-		graphics::drawText(game->canvas_width - 13, 5, 5, "  P2:" + to_string(game->player2.points), br);
+		graphics::drawText(2, 5, 5, "P1:" + to_string(game->player1.get_points()), br);
+		graphics::drawText(game->canvas_width - 13, 5, 5, "  P2:" + to_string(game->player2.get_points()), br);
 	}
 
 };
