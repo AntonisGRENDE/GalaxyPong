@@ -2,9 +2,10 @@
 
 #include "graphics.h"
 #include <random>
-#include "vecmath.h"//an kanw sigkrouseis me ton tropo pou leei sto paradeigma
+#include "vecmath.h"
 #include "config.h"
 using namespace std;
+constexpr float MIN_DIRECTION_THRESHOLD = 0.3f;
 
 class GameObjects {
 
@@ -20,13 +21,13 @@ public:
 		speed = s;
 	}
 
-	float get_center_x() {
+	float get_center_x() const {
 		return center_x;
 	}
-	float get_center_y() {
+	float get_center_y() const {
 		return center_y;
 	}
-	float get_speed() {
+	float get_speed() const {
 		return speed;
 	}
 
@@ -46,50 +47,59 @@ class Ball: public GameObjects {
 
 private:
 	float ball_direction_x, ball_direction_y;
-	float init_ball_center_x ,init_ball_center_y;
+	float init_ball_center_x, init_ball_center_y;
 	float init_ball_direction_x, init_ball_direction_y;
 	float ball_radius;
 
 public:
-	Ball(float x, float y, float dx, float dy, float br, float bs)
-		: GameObjects(x, y, bs){
+	Ball(float x, float y, float dx, float dy, float ball_radius, float ball_speed)
+		: GameObjects(x, y, ball_speed){
 		init_ball_center_x = x;
 		init_ball_center_y = y;
 		init_ball_direction_x = dx;
 		init_ball_direction_y = dy;
 
-		ball_radius = br;
+		this->ball_radius = ball_radius;
 		startAgain();
 	}
 
-	void startAgain() {						//gets called in the start or every time the ball touches the sides
+	void startAgain() {
 		center_x = init_ball_center_x;
 		center_y = init_ball_center_y;
 
-		// generates random numbers between -0.9999 to 0.9999
+		// Random number generator for direction
 		random_device seed;
 		default_random_engine generator(seed());
-		uniform_real_distribution <float> distribution(-1.0, 1.0);
-		float dx = distribution(generator);
-		float dy = distribution(generator);
+		uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+		float dx, dy;
 
-		// prokeimenou na min kanei polles anapidiseis sta plagia 
-		while (dy < 0.3 && dy > -0.3)
-			dy = distribution(generator);
-		while (dx < 0.3 && dx > -0.3)
+		do {
 			dx = distribution(generator);
-		ball_direction_x = dx;
-		ball_direction_y = dy;
+		} while (abs(dx) < MIN_DIRECTION_THRESHOLD);
 
+		do {
+			dy = distribution(generator);
+		} while (abs(dy) < MIN_DIRECTION_THRESHOLD);
+
+		// Normalize the direction vector
+		float magnitude = sqrt(dx * dx + dy * dy);
+		ball_direction_x = dx / magnitude;
+		ball_direction_y = dy / magnitude;
+
+		// Scale the direction to match the ball's speed
+		ball_direction_x *= speed;
+		ball_direction_y *= speed;
 	}
 
-	float get_ball_radius() {
+
+
+	float get_ball_radius() const {
 		return ball_radius;
 	}
-	float get_ball_direction_x() {
+	float get_ball_direction_x() const {
 		return ball_direction_x;
 	}
-	float get_ball_direction_y() {
+	float get_ball_direction_y() const {
 		return ball_direction_y;
 	}
 
@@ -106,8 +116,8 @@ public:
 	void set_init_ball_direction_y(float init_ball_direction_y) {
 		this->init_ball_direction_y = init_ball_direction_y;
 	}
-	void set_init_ball_direction_x(float dx) {
-		init_ball_direction_x = dx;
+	void set_init_ball_direction_x(float init_ball_direction_x) {
+		this->init_ball_direction_x = init_ball_direction_x;
 	}
 
 };
@@ -121,8 +131,8 @@ protected:
 	int points;
 
 public:
-	Bar(float x, float y, float w, float h, float sp)
-		: GameObjects(x,y,sp){
+	Bar(float x, float y, float w, float h, float speed)
+		: GameObjects(x , y, speed){
 		width = w;
 		height = h;
 		points = 0;
@@ -139,7 +149,7 @@ public:
 	bool collisionWithBall(Ball& ball) {
 		if (abs(center_x - ball.get_center_x()) - (width / 2) - (ball.get_ball_radius() - 1) < 0) {
 			if (abs(center_y - ball.get_center_y()) - (height / 2) - (ball.get_ball_radius() - 1) < 0) {
-				return true; //egine sigrousi me tin mpala
+				return true; // collision with ball took place
 			}
 		}
 		return false;
@@ -162,7 +172,7 @@ public:
 };
 
 
-class Game {
+class GameState {
 protected:
 	int window_width, window_height;
 	float canvas_width, canvas_height;
@@ -173,8 +183,9 @@ protected:
 	Bar* player2;
 
 public:
-	Game(int ww, int wh, float cw, float ch, Ball* ball, Bar* p1, Bar* p2)
+	GameState(int ww, int wh, float cw, float ch, Ball* ball, Bar* p1, Bar* p2)
 		: ball(ball), player1(p1), player2(p2) {
+
 		window_width = ww;
 		window_height = wh;
 		canvas_width = cw;
@@ -182,8 +193,14 @@ public:
 		bounces = 0;
 	}
 
+	~GameState() {
+		delete ball;
+		delete player1;
+		delete player2;
+	}
+
 	static void drawBall() {
-		Game* game = static_cast <Game*>(graphics::getUserData());			// get all game data
+		GameState* game = static_cast <GameState*>(graphics::getUserData());			// get all game data
 		graphics::Brush br;
 		br.fill_opacity = 0.95f;
 		br.outline_opacity = 0.0f;
@@ -192,7 +209,7 @@ public:
 	}
 
 	static void drawPlayers() {
-		Game* game = reinterpret_cast <Game*>(graphics::getUserData());
+		GameState* game = reinterpret_cast <GameState*>(graphics::getUserData());
 		graphics::Brush br;
 		br.fill_opacity = 0.95f;
 		br.outline_opacity = 0.2f;
@@ -202,7 +219,7 @@ public:
 	}
 
 	static void drawText() {
-		Game* game = reinterpret_cast <Game*>(graphics::getUserData());
+		GameState* game = reinterpret_cast <GameState*>(graphics::getUserData());
 		graphics::Brush br;
 		br.fill_secondary_color[0] = 1.0f;
 		br.fill_secondary_color[1] = 1.0f;
