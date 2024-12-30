@@ -6,7 +6,7 @@
 #include "config.h"
 using namespace std;
 
-class GameComponent {
+class GameObjects {
 
 protected:
 	float center_x;
@@ -14,7 +14,7 @@ protected:
 	float speed;
 
 public:
-	GameComponent(float x, float y, float s) {
+	GameObjects(float x, float y, float s) {
 		center_x = x;
 		center_y = y;
 		speed = s;
@@ -30,34 +30,29 @@ public:
 		return speed;
 	}
 
-	// setters
 	void set_center_x(float center_x) {
 		this->center_x = center_x;
 	}
 	void set_center_y(float center_y) {
 		this->center_y = center_y;
 	}
-	void set_speed(float cs) {
-		speed = cs;
+	void set_speed(float speed) {
+		this->speed = speed;
 	}
 };
 
 
-class Ball: public GameComponent {
+class Ball: public GameObjects {
 
 private:
-	float ball_direction_x;
-	float ball_direction_y;
+	float ball_direction_x, ball_direction_y;
+	float init_ball_center_x ,init_ball_center_y;
+	float init_ball_direction_x, init_ball_direction_y;
 	float ball_radius;
 
-	float init_ball_center_x;
-	float init_ball_center_y;
-	float init_ball_direction_x;
-	float init_ball_direction_y;
-
 public:
-	Ball(float x, float y, float dx, float dy, float br, float bs):
-		GameComponent(x, y, bs){ //default constructor
+	Ball(float x, float y, float dx, float dy, float br, float bs)
+		: GameObjects(x, y, bs){
 		init_ball_center_x = x;
 		init_ball_center_y = y;
 		init_ball_direction_x = dx;
@@ -79,8 +74,10 @@ public:
 		float dy = distribution(generator);
 
 		// prokeimenou na min kanei polles anapidiseis sta plagia 
-		while (dy < 0.3 && dy > -0.3) dy = distribution(generator);
-		while (dx < 0.3 && dx > -0.3) dx = distribution(generator);
+		while (dy < 0.3 && dy > -0.3)
+			dy = distribution(generator);
+		while (dx < 0.3 && dx > -0.3)
+			dx = distribution(generator);
 		ball_direction_x = dx;
 		ball_direction_y = dy;
 
@@ -103,11 +100,11 @@ public:
 	void set_ball_direction_y(float ball_direction_y) {
 		this->ball_direction_y = ball_direction_y;
 	}
-	void set_ball_radius(float br) {
-		ball_radius = br;
+	void set_ball_radius(float ball_radius) {
+		this->ball_radius = ball_radius;
 	}
-	void set_init_ball_direction_y(float dy) {
-		init_ball_direction_y = dy;
+	void set_init_ball_direction_y(float init_ball_direction_y) {
+		this->init_ball_direction_y = init_ball_direction_y;
 	}
 	void set_init_ball_direction_x(float dx) {
 		init_ball_direction_x = dx;
@@ -116,7 +113,7 @@ public:
 };
 
 
-class Bar : public GameComponent{
+class Bar : public GameObjects{
 
 protected:
 	float width;
@@ -125,7 +122,7 @@ protected:
 
 public:
 	Bar(float x, float y, float w, float h, float sp)
-		: GameComponent(x,y,sp){
+		: GameObjects(x,y,sp){
 		width = w;
 		height = h;
 		points = 0;
@@ -166,19 +163,18 @@ public:
 
 
 class Game {
-public:
-	int window_width;
-	int window_height;
-	int canvas_width;
-	int canvas_height;
+protected:
+	int window_width, window_height;
+	float canvas_width, canvas_height;
 	int bounces;
 
-	Ball& ball;
-	Bar& player1;
-	Bar& player2;
+	Ball* ball;
+	Bar* player1;
+	Bar* player2;
 
-	Game(int ww, int wh, int cw, int ch, Ball& ball, Bar& p1, Bar& p2) :
-		ball(ball), player1(p1), player2(p2) {
+public:
+	Game(int ww, int wh, float cw, float ch, Ball* ball, Bar* p1, Bar* p2)
+		: ball(ball), player1(p1), player2(p2) {
 		window_width = ww;
 		window_height = wh;
 		canvas_width = cw;
@@ -187,12 +183,12 @@ public:
 	}
 
 	static void drawBall() {
-		Game* game = reinterpret_cast <Game*>(graphics::getUserData());			// get all game data
+		Game* game = static_cast <Game*>(graphics::getUserData());			// get all game data
 		graphics::Brush br;
 		br.fill_opacity = 0.95f;
 		br.outline_opacity = 0.0f;
-		br.texture = assets_path + "sun3.png";
-		graphics::drawDisk(game->ball.get_center_x(), game->ball.get_center_y(), game->ball.get_ball_radius(), br);
+		br.texture = ASSETS_PATH + "sun3.png";
+		graphics::drawDisk(game->ball->get_center_x(), game->ball->get_center_y(), game->ball->get_ball_radius(), br);
 	}
 
 	static void drawPlayers() {
@@ -200,9 +196,9 @@ public:
 		graphics::Brush br;
 		br.fill_opacity = 0.95f;
 		br.outline_opacity = 0.2f;
-		br.texture = assets_path + "bar3.png";
-		graphics::drawRect(game->player1.get_center_x(), game->player1.get_center_y(), game->player1.get_width(), game->player1.get_height(), br);
-		graphics::drawRect(game->player2.get_center_x(), game->player2.get_center_y(), game->player2.get_width(), game->player2.get_height(), br);
+		br.texture = ASSETS_PATH + "bar3.png";
+		graphics::drawRect(game->player1->get_center_x(), game->player1->get_center_y(), game->player1->get_width(), game->player1->get_height(), br);
+		graphics::drawRect(game->player2->get_center_x(), game->player2->get_center_y(), game->player2->get_width(), game->player2->get_height(), br);
 	}
 
 	static void drawText() {
@@ -211,8 +207,38 @@ public:
 		br.fill_secondary_color[0] = 1.0f;
 		br.fill_secondary_color[1] = 1.0f;
 		br.fill_secondary_color[2] = 1.0f;
-		graphics::drawText(2, 5, 5, "P1:" + to_string(game->player1.get_points()), br);
-		graphics::drawText(game->canvas_width - 13, 5, 5, "  P2:" + to_string(game->player2.get_points()), br);
+		graphics::drawText(2, 5, 5, "P1:" + to_string(game->player1->get_points()), br);
+		graphics::drawText(game->canvas_width - 13, 5, 5, "  P2:" + to_string(game->player2->get_points()), br);
 	}
+
+	int get_window_width() {
+		return window_width;
+	}
+	int get_window_height() {
+		return window_height;
+	}
+	float get_canvas_width() {
+		return canvas_width;
+	}
+	float get_canvas_height() {
+		return canvas_height;
+	}
+	int get_bounces() {
+		return bounces;
+	}
+	void increment_bounces() {
+		++bounces;
+	}
+
+	Ball& get_ball() {
+		return *ball;
+	}
+	Bar& get_player1() {
+		return *player1;
+	}
+	Bar& get_player2() {
+		return *player2;
+	}
+
 
 };
